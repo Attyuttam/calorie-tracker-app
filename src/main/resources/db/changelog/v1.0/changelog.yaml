@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: createTableUserData
+      author: Attyuttam Saha
+      changes:
+      - sqlFile:
+          dbms: h2
+          encoding: utf8
+          endDelimiter: \n/\s*\n|\n/\s*$
+          path: CREATE_USER_DATA.sql
+          relativeToChangelogFile: true
+          splitStatements: true
+          stripComments: true
+  - changeSet:
+      id: createTableCalorieData
+      author: Attyuttam Saha
+      changes:
+      - sqlFile:
+          dbms: h2
+          encoding: utf8
+          path: CREATE_CALORIE_DATA.sql
+          relativeToChangelogFile: true
+          splitStatements: true
+          stripComments: true
