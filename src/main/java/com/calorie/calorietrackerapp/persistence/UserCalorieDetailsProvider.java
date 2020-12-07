@@ -11,6 +11,7 @@ import com.calorie.calorietrackerapp.domain.Calorie;
 import com.calorie.calorietrackerapp.domain.User;
 import com.calorie.calorietrackerapp.domain.UserCalorieDetails;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +43,8 @@ public class UserCalorieDetailsProvider {
         userRecords.forEach(userRecord -> {
             userList.add(User.builder().userId(userRecord.getUserId()).userName(userRecord.getUserName())
                     .userAddress(userRecord.getUserAddress()).userAge(userRecord.getUserAge())
-                    .userGender(userRecord.getUserGender()).build());
+                    .userEmail(userRecord.getUserEmail()).userPassword(userRecord.getUserPassword())
+                    .userRole(userRecord.getUserRole()).userGender(userRecord.getUserGender()).build());
         });
         return userList;
     }
@@ -81,15 +83,19 @@ public class UserCalorieDetailsProvider {
 
     public String saveUserData(User user) {
         String userId = "";
+        log.info("pass:" + user.getUserPassword());
+        log.info("pass:" + user.getUserEmail());
+        log.info("pass:" + user.getUserRole());
+        log.info("pass:" + user.getUserGender());
+        log.info("pass:" + user.getUserName());
+
         try {
-            log.info("name: "+user.getUserName());
-            log.info("age: "+user.getUserAge());
-            log.info("address: "+user.getUserAddress());
-            log.info("gender: "+user.getUserGender());
-            userId = userRepository
-                    .save(UserRecord.builder().userAge(user.getUserAge()).userAddress(user.getUserAddress())
-                            .userName(user.getUserName()).userGender(user.getUserGender()).build())
-                    .getUserId();
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+            userId = userRepository.save(UserRecord.builder().userAge(user.getUserAge())
+                    .userAddress(user.getUserAddress()).userEmail(user.getUserEmail())
+                    .userPassword(passwordEncoder.encode(user.getUserPassword())).userRole(user.getUserRole())
+                    .userName(user.getUserName()).userGender(user.getUserGender()).build()).getUserId();
         } catch (Exception e) {
             throw new RuntimeException("Could not save user data because of : " + e.getMessage());
         }
@@ -136,10 +142,47 @@ public class UserCalorieDetailsProvider {
     public String updateUserData(User user) {
         Optional<UserRecord> userRecord = userRepository.findById(user.getUserId());
         if (userRecord.isPresent()) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
             userRepository.updateUserData(user.getUserId(), user.getUserAge(), user.getUserGender(),
-                    user.getUserAddress(), user.getUserName());
+                    user.getUserAddress(), user.getUserName(), passwordEncoder.encode(user.getUserPassword()),
+                    user.getUserEmail(), user.getUserRole());
+
+            return "User " + user.getUserName() + " with id: " + user.getUserId() + " updated successfully !";
 
         }
         return "User does not exist in our database";
+    }
+
+    public String updateCalorieData(Calorie calorie) {
+        Optional<CalorieRecord> calorieRecord = calorieRepository.findById(calorie.getCalorieId());
+        if (calorieRecord.isPresent()) {
+            calorieRepository.updateCalorieData(calorie.getCalorieId(), calorie.getCalorieCount(),
+                    calorie.getCalorieFoodType());
+
+            return "Calorie " + calorie.getCalorieId() + " entered by user with id: " + calorie.getUserId()
+                    + " updated successfully !";
+
+        }
+        return "Calorie entry does not exist in our database";
+    }
+
+    public String deleteCalorieData(String calorieId) {
+        Optional<CalorieRecord> calorieRecord = calorieRepository.findById(calorieId);
+        if (calorieRecord.isPresent()) {
+            calorieRepository.deleteCalorieData(calorieRecord.get().getCalorieId());
+            return "Calorie entry deleted successfully !";
+        }
+        return "Failed to delete calorie entry";
+    }
+
+    public String deleteUserData(String userId) {
+        Optional<UserRecord> userRecord = userRepository.findById(userId);
+        if (userRecord.isPresent()) {
+
+            userRepository.deleteById(userId);
+            return "User deleted successfully !";
+        }
+        return "Failed to delete user";
     }
 }

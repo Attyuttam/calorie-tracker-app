@@ -3,7 +3,6 @@ package com.calorie.calorietrackerapp.persistence;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -42,7 +41,7 @@ public class CalorieRecord implements Serializable{
     @Column(name = "CALORIE_ID")
     private String calorieId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "USER_ID")
     private UserRecord user;
 

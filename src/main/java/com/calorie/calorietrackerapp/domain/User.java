@@ -20,4 +20,7 @@ public class User {
     public String userAddress;
     public int userAge;
     public String userGender;
+    public String userEmail;
+    public String userPassword;
+    public String userRole;
 }

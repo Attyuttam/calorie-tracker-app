@@ -31,9 +31,6 @@ import lombok.ToString;
 @Table(name = "USER_DATA")
 public class UserRecord implements Serializable{
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 7161600696122036722L;
 
     @Id
@@ -53,6 +50,16 @@ public class UserRecord implements Serializable{
 
     @Column(name = "USER_GENDER")
     private String userGender;
+
+    @Column(name = "USER_EMAIL")
+    private String userEmail;
+
+    @Column(name = "USER_PASSWORD")
+    private String userPassword;
+
+    @Column(name = "USER_ROLE")
+    private String userRole;
+
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
     private Set<CalorieRecord> calorieDetails;
