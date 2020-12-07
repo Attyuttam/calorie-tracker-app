@@ -1,6 +1,10 @@
 package com.calorie.calorietrackerapp.infra.controller;
 
 import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import java.util.HashMap;
 
 import com.calorie.calorietrackerapp.domain.Calorie;
@@ -8,13 +12,18 @@ import com.calorie.calorietrackerapp.domain.User;
 import com.calorie.calorietrackerapp.domain.UserCalorieDetails;
 import com.calorie.calorietrackerapp.persistence.UserCalorieDetailsProvider;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,9 +35,21 @@ import lombok.AllArgsConstructor;
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/v1")
 public class DetailsController {
+    
 
     private UserCalorieDetailsProvider userCalorieDetailsProvider;
 
+    @RequestMapping(value="/logout", method = RequestMethod.GET)
+    public HashMap<String, String> logoutPage (HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null){    
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        HashMap<String, String> map = new HashMap<>();
+        map.put("responseString", "logged out successfully");
+        return map;
+    }
+    
     @GetMapping("/calories")
     public List<Calorie> getCalorieDetails() {
         return userCalorieDetailsProvider.getCalorieDetails();
@@ -64,13 +85,38 @@ public class DetailsController {
     }
 
     @PostMapping("/update/user/{userId}")
-    public String updateUserData(@RequestBody User user) {
-        return userCalorieDetailsProvider.updateUserData(user);
+    public HashMap<String, String> updateUserData(@PathVariable String userId, @RequestBody User user) {
+        user.setUserId(userId);
+        String responseString = userCalorieDetailsProvider.updateUserData(user);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("responseString", responseString);
+        return map;
     }
-
+    @PostMapping("/update/calorie/{calorieId}")
+    public HashMap<String, String> updateCalorieData(@PathVariable String calorieId, @RequestBody Calorie calorie) {
+        calorie.setCalorieId(calorieId);
+        String responseString = userCalorieDetailsProvider.updateCalorieData(calorie);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("responseString", responseString);
+        return map;
+    }
     @PostMapping("/calorie")
     public HashMap<String, String> saveCalorieData(@RequestBody Calorie calorie) {
         String responseString = userCalorieDetailsProvider.saveCalorieData(calorie);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("responseString", responseString);
+        return map;
+    }
+    @DeleteMapping("/delete/calorie/{calorieId}")
+    public HashMap<String, String> deleteCalorieData(@PathVariable String calorieId){
+        String responseString = userCalorieDetailsProvider.deleteCalorieData(calorieId);
+        HashMap<String, String> map = new HashMap<>();
+        map.put("responseString", responseString);
+        return map;
+    }
+    @DeleteMapping("/delete/user/{userId}")
+    public HashMap<String, String> deleteUserData(@PathVariable String userId){
+        String responseString = userCalorieDetailsProvider.deleteUserData(userId);
         HashMap<String, String> map = new HashMap<>();
         map.put("responseString", responseString);
         return map;
