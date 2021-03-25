@@ -40,13 +40,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable();
-        http.authorizeRequests()
+        http.authorizeRequests().antMatchers("/register/showRegistrationForm","/register/processRegistrationForm").permitAll()
             .anyRequest()
             .authenticated()
             .and()
-            .formLogin().permitAll()
+            .formLogin()
+            .loginPage("/showCustomLoginPage")
+            .loginProcessingUrl("/authenticateTheUser")
+            .permitAll()
             .and()
-            .logout().permitAll();
+            .logout()
+            .logoutSuccessUrl("/showCustomLoginPage")
+            .permitAll()
+            .and(); 
 
     }
 
