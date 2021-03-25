@@ -83,11 +83,7 @@ public class UserCalorieDetailsProvider {
 
     public String saveUserData(User user) {
         String userId = "";
-        log.info("pass:" + user.getUserPassword());
-        log.info("pass:" + user.getUserEmail());
-        log.info("pass:" + user.getUserRole());
-        log.info("pass:" + user.getUserGender());
-        log.info("pass:" + user.getUserName());
+
 
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
